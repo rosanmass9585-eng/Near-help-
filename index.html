@@ -1,0 +1,609 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NearHelp</title>
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f6fb;
+      color: #17243a;
+    }
+
+    header {
+      background: #102b50;
+      color: white;
+      padding: 24px 18px;
+      border-radius: 0 0 22px 22px;
+    }
+
+    header h1 { font-size: 28px; }
+    header p { margin-top: 7px; color: #d5e4f5; }
+
+    main { padding: 18px; max-width: 650px; margin: auto; }
+
+    .card {
+      background: white;
+      padding: 18px;
+      border-radius: 14px;
+      margin: 15px 0;
+      box-shadow: 0 3px 12px #0000000b;
+    }
+
+    h2 { font-size: 20px; margin-bottom: 14px; }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border: 1px solid #ccd5e2;
+      border-radius: 9px;
+      font-size: 15px;
+      background: white;
+    }
+
+    button {
+      border: none;
+      border-radius: 9px;
+      padding: 13px 16px;
+      background: #1769d2;
+      color: white;
+      font-size: 15px;
+      cursor: pointer;
+      margin: 5px 3px 5px 0;
+    }
+
+    button.secondary { background: #52657c; }
+    button.danger { background: #b83232; }
+    button:disabled { opacity: .6; }
+
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .category {
+      background: #edf4ff;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 17px 8px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .category.selected {
+      border-color: #1769d2;
+      background: #dceaff;
+    }
+
+    .category span { font-size: 27px; }
+    .category h3 { font-size: 15px; margin-top: 7px; }
+
+    .hidden { display: none; }
+    .muted { color: #65758a; font-size: 14px; }
+    .booking { border-top: 1px solid #e2e7ee; padding: 13px 0; }
+    .status { color: #a56a00; font-weight: bold; }
+
+    #message {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    footer { text-align: center; padding: 20px; color: #778397; }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>NearHelp</h1>
+  <p>Your Nearby Services, One Tap Away</p>
+</header>
+
+<main>
+
+  <div id="authSection" class="card">
+    <h2 id="authTitle">Create Account</h2>
+
+    <input id="name" type="text" placeholder="Your name">
+    <input id="email" type="email" placeholder="Email address">
+    <input id="password" type="password" placeholder="Password">
+
+    <button id="authButton" onclick="register()">Register</button>
+    <button class="secondary" onclick="toggleAuth()">Already have an account? Login</button>
+
+    <p id="message" class="muted">Create your NearHelp account.</p>
+  </div>
+
+  <section id="appSection" class="hidden">
+
+<div class="card">
+  <h2>🧰 Become a Provider</h2>
+  <p class="muted">
+    Register your service and apply to join NearHelp.
+  </p>
+
+  <input
+    id="providerName"
+    type="text"
+    placeholder="Provider Name"
+  >
+
+  <select id="providerService">
+    <option value="">Select Your Service</option>
+    <option value="Electrician">Electrician</option>
+    <option value="Plumber">Plumber</option>
+    <option value="AC Service">AC Service</option>
+    <option value="Cleaning">Cleaning</option>
+    <option value="Painter">Painter</option>
+    <option value="Repair">Repair</option>
+  </select>
+
+  <button onclick="applyProvider()">
+    Submit Provider Application
+  </button>
+
+  <p id="providerMessage" class="muted"></p>
+</div>
+
+    <div class="card">
+      <h2 id="welcome">Welcome!</h2>
+      <p class="muted">Find a nearby service for your needs.</p>
+      <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <div class="card">
+      <h2>Choose a Service</h2>
+
+      <div class="categories">
+        <div class="category" onclick="chooseService('Electrician',this)">
+          <span>⚡</span><h3>Electrician</h3>
+        </div>
+        <div class="category" onclick="chooseService('Plumber',this)">
+          <span>🔧</span><h3>Plumber</h3>
+        </div>
+        <div class="category" onclick="chooseService('AC Service',this)">
+          <span>❄️</span><h3>AC Service</h3>
+        </div>
+        <div class="category" onclick="chooseService('Cleaning',this)">
+          <span>🧹</span><h3>Cleaning</h3>
+        </div>
+        <div class="category" onclick="chooseService('Painter',this)">
+          <span>🎨</span><h3>Painter</h3>
+        </div>
+        <div class="category" onclick="chooseService('Repair',this)">
+          <span>🛠️</span><h3>Repair</h3>
+        </div>
+      </div>
+    </div>
+<div class="card">
+  <h2>Provider Bookings</h2>
+
+  <div id="providerBookingList">
+    No bookings assigned yet.
+  </div>
+
+  <button onclick="loadProviderBookings()">
+    Refresh Provider Bookings
+  </button>
+</div>
+    <div class="card">
+      <h2>Book a Service</h2>
+
+      <p id="selectedService" class="muted">Choose a service above.</p>
+
+      <input id="customerName" type="text" placeholder="Your name">
+      <input id="city" type="text" placeholder="City / Area">
+      <input
+  <input
+  id="date"
+  type="date"
+  required
+>
+      <textarea id="details" rows="3" placeholder="Describe your service requirement"></textarea>
+
+      <button id="bookButton" onclick="createBooking()">Confirm Booking</button>
+      <p id="bookingMessage" class="muted"></p>
+    </div>
+
+    <div class="card">
+      <h2>My Bookings</h2>
+      <div id="bookingList">Loading bookings...</div>
+      <button class="secondary" onclick="loadBookings()">Refresh Bookings</button>
+    </div>
+
+<div class="card">
+  <h2>🧰 Provider Dashboard</h2>
+
+  <p class="muted">
+    Welcome to NearHelp Provider Portal.
+  </p>
+
+  <div class="booking">
+    <h3>📋 New Bookings</h3>
+    <p class="muted">
+      Approved providers can view assigned bookings here.
+    </p>
+  </div>
+
+  <div class="booking">
+    <h3>✅ Accepted Jobs</h3>
+    <p class="muted">
+      Your accepted service requests will appear here.
+    </p>
+  </div>
+
+  <div class="booking">
+    <h3>🏁 Completed Jobs</h3>
+    <p class="muted">
+      Your completed services will appear here.
+    </p>
+  </div>
+
+  <p class="muted">
+    Provider access requires admin approval.
+  </p>
+</div>
+
+  </section>
+</main>
+
+<footer>© 2026 NearHelp</footer>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // Replace these values with your Firebase Web App configuration.
+  const firebaseConfig = {
+  apiKey: "AIzaSyBldlB55MH0gLNu1g5f_2X6Ejq3i_Hy8Pk",
+  authDomain: "nearhelp-f0b9e.firebaseapp.com",
+  projectId: "nearhelp-f0b9e",
+  storageBucket: "nearhelp-f0b9e.firebasestorage.app",
+  messagingSenderId: "389660565504",
+  appId: "1:389660565504:web:80717ddf68d2e9c96978e5"
+};
+
+  firebase.initializeApp(firebaseConfig);
+
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(() => console.log("NearHelp Ready"))
+      .catch(error => console.log(error));
+  });
+}
+  let isLogin = false;
+  let selectedService = "";
+
+  function showMessage(text) {
+    document.getElementById("message").textContent = text;
+  }
+
+  function toggleAuth() {
+    isLogin = !isLogin;
+
+    document.getElementById("name").classList.toggle("hidden", isLogin);
+    document.getElementById("authTitle").textContent =
+      isLogin ? "Login" : "Create Account";
+
+    document.getElementById("authButton").textContent =
+      isLogin ? "Login" : "Register";
+
+    document.getElementById("authButton").onclick =
+      isLogin ? login : register;
+
+    document.querySelector("#authSection button.secondary").textContent =
+      isLogin ? "Create a new account" : "Already have an account? Login";
+
+    showMessage(isLogin ? "Login to your account." : "Create your account.");
+  }
+
+  async function register() {
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    if (!name || !email || !password) {
+      showMessage("Please fill all fields.");
+      return;
+    }
+
+    try {
+      const result = await auth.createUserWithEmailAndPassword(email, password);
+
+      await db.collection("users").doc(result.user.uid).set({
+        name: name,
+        email: email,
+        role: "customer"
+      });
+
+      showMessage("Account created successfully!");
+    } catch (error) {
+      showMessage(error.message);
+    }
+  }
+
+  async function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      showMessage("Login successful!");
+    } catch (error) {
+      showMessage(error.message);
+    }
+  }
+
+  async function logout() {
+    await auth.signOut();
+  }
+
+  auth.onAuthStateChanged(async user => {
+    const authSection = document.getElementById("authSection");
+    const appSection = document.getElementById("appSection");
+
+    if (user) {
+      authSection.classList.add("hidden");
+      appSection.classList.remove("hidden");
+
+      try {
+        const profile = await db.collection("users").doc(user.uid).get();
+        const name = profile.exists ? profile.data().name : "Customer";
+
+        document.getElementById("welcome").textContent =
+          "Welcome, " + name + "!";
+const adminDashboard =
+  document.getElementById("adminDashboard");
+
+if (user.uid === "ZI4EmnsBcRbZEpfapprOEjkgq5n1") {
+  adminDashboard.style.display = "block";
+} else {
+  adminDashboard.style.display = "none";
+  }
+        document.getElementById("customerName").value = name;
+        loadBookings();
+      } catch (error) {
+        document.getElementById("bookingList").textContent = error.message;
+      }
+    } else {
+      authSection.classList.remove("hidden");
+      appSection.classList.add("hidden");
+    }
+  });
+
+  function chooseService(service, element) {
+    selectedService = service;
+
+    document.querySelectorAll(".category").forEach(item => {
+      item.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+    document.getElementById("selectedService").textContent =
+      "Selected: " + service;
+  }
+
+  async function createBooking() {
+    const user = auth.currentUser;
+
+    if (!user) {
+      alert("Please login first.");
+      return;
+    }
+
+    const customerName =
+      document.getElementById("customerName").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const date = document.getElementById("date").value;
+    const details = document.getElementById("details").value.trim();
+
+    if (!selectedService || !customerName || !city || !date) {
+      document.getElementById("bookingMessage").textContent =
+        "Please choose a service and fill all required fields.";
+      return;
+    }
+
+    const button = document.getElementById("bookButton");
+    button.disabled = true;
+
+    try {
+      await db.collection("bookings").add({
+        customerId: user.uid,
+        customerName: customerName,
+        service: selectedService,
+        city: city,
+        date: date,
+        details: details,
+        status: "pending",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      document.getElementById("bookingMessage").textContent =
+        "Booking saved successfully!";
+
+      document.getElementById("details").value = "";
+      loadBookings();
+    } catch (error) {
+      document.getElementById("bookingMessage").textContent =
+        "Booking failed: " + error.message;
+    } finally {
+      button.disabled = false;
+    }
+  }
+async function loadProviderBookings() {
+  const user = auth.currentUser;
+  const list = document.getElementById("providerBookingList");
+
+  if (!user) {
+    list.textContent = "Please login first.";
+    return;
+  }
+
+  list.textContent = "Loading...";
+
+  try {
+    const result = await db.collection("bookings")
+      .where("providerId", "==", user.uid)
+      .get();
+
+    list.innerHTML = "";
+
+    if (result.empty) {
+      list.textContent = "No bookings assigned yet.";
+      return;
+    }
+
+    result.forEach(doc => {
+      const data = doc.data();
+      const item = document.createElement("div");
+
+      item.textContent =
+        data.service + " - " + data.status;
+
+      list.appendChild(item);
+    });
+
+  } catch (error) {
+    list.textContent = "Error: " + error.message;
+  }
+}
+async function applyProvider() {
+  const user = auth.currentUser;
+
+  if (!user) {
+    alert("Please login first.");
+    return;
+  }
+
+  const name = document.getElementById("providerName").value.trim();
+  const service = document.getElementById("providerService").value;
+  const message = document.getElementById("providerMessage");
+
+  if (!name || !service) {
+    message.textContent = "Please fill all fields.";
+    return;
+  }
+
+  try {
+    const applicationRef = db
+      .collection("providerApplications")
+      .doc(user.uid);
+
+    const existing = await applicationRef.get();
+
+    if (existing.exists) {
+      message.textContent = "You have already applied.";
+      return;
+    }
+
+    await applicationRef.set({
+      applicantId: user.uid,
+      name: name,
+      service: service,
+      status: "pending"
+    });
+
+    message.textContent =
+      "Application submitted! Waiting for admin approval.";
+
+  } catch (error) {
+    message.textContent = "Error: " + error.message;
+  }
+}
+
+  async function loadBookings() {
+    const user = auth.currentUser;
+    const list = document.getElementById("bookingList");
+
+    if (!user) return;
+
+    list.textContent = "Loading...";
+
+    try {
+      const result = await db.collection("bookings")
+        .where("customerId", "==", user.uid)
+        .get();
+
+      list.innerHTML = "";
+
+      if (result.empty) {
+        list.textContent = "No bookings yet.";
+        return;
+      }
+
+      result.forEach(doc => {
+        const data = doc.data();
+
+        const item = document.createElement("div");
+        item.className = "booking";
+
+        const title = document.createElement("strong");
+        title.textContent = data.service || "Service";
+
+        const date = document.createElement("p");
+        date.textContent = "Date: " + (data.date || "-");
+
+        const city = document.createElement("p");
+        city.textContent = "Area: " + (data.city || "-");
+
+        const status = document.createElement("p");
+        status.className = "status";
+        status.textContent = "Status: " + (data.status || "pending");
+
+        item.append(title, date, city, status);
+        list.appendChild(item);
+      });
+    } catch (error) {
+      list.textContent = "Could not load bookings: " + error.message;
+    }
+  }
+</script>
+<div id="adminDashboard" style="display:none;">
+
+  <div class="card">
+    <h2>👑 NearHelp Admin Dashboard</h2>
+    <p>Welcome, Admin!</p>
+  </div>
+
+  <div class="card">
+    <h3>📊 Dashboard Overview</h3>
+    <p>Total Customers: <span id="totalCustomers">0</span></p>
+    <p>Total Bookings: <span id="totalBookings">0</span></p>
+    <p>Provider Applications: <span id="totalProviders">0</span></p>
+  </div>
+
+  <div class="card">
+    <h3>📋 Manage Bookings</h3>
+    <div id="adminBookingList">
+      No bookings loaded.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🙋 Provider Applications</h3>
+    <div id="adminProviderList">
+      No applications loaded.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
